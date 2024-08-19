@@ -1,0 +1,41 @@
+buildscript {
+    ext.kotlin_version = '1.9.0'
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.2' // or the latest version
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
+
+// Specify the custom Java home
+//org.gradle.java.home='C:\\Program Files\\Java\\jdk-17'
+
+// Alternatively, you can use this block to set Java home for all Java compile tasks
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.fork = true
+        options.forkOptions.javaHome = file('C:\\Program Files\\Java\\jdk-17')
+    }
+}
