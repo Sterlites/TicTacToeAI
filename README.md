@@ -1,4 +1,5 @@
-# newapp
+# TicTacToeAI
+Entirely generate by AI by a non-programmer class XII student
 
 A new Flutter project.
 
