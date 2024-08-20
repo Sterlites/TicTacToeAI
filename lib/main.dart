@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'utils/sound_service.dart';
 
 import 'views/game_screen.dart';
@@ -8,9 +9,33 @@ import 'views/splash_screen.dart';
 // Set this to false for production mode
 const bool isDevelopmentMode = false;
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SoundService(); // Initialize the SoundService
+  
+  // Initialize the SoundService
+  await SoundService.initialize();
+  
+  // Set preferred orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Enable on back invoked callback
+  if (SystemChannels.platform.name == 'android_app_retain') {
+    await SystemChannels.platform.invokeMethod<void>(
+      'SystemNavigator.setSystemUIOverlayStyle',
+      <String, dynamic>{
+        'systemNavigationBarColor': Colors.transparent,
+        'systemNavigationBarDividerColor': Colors.transparent,
+        'systemNavigationBarIconBrightness': Brightness.light,
+        'statusBarColor': Colors.transparent,
+        'statusBarBrightness': Brightness.light,
+        'statusBarIconBrightness': Brightness.dark,
+      },
+    );
+  }
+
   runApp(const MyApp());
 }
 
@@ -42,6 +67,10 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
       home: isDevelopmentMode ? DevWrapper(child: appBody) : appBody,
     );
   }

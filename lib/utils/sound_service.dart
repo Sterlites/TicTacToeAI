@@ -1,18 +1,34 @@
 import 'package:audioplayers/audioplayers.dart';
 
 class SoundService {
-  static final SoundService _instance = SoundService._internal();
-  factory SoundService() => _instance;
+  static AudioPlayer? _backgroundMusicPlayer;
+  static AudioPlayer? _effectPlayer;
 
-  SoundService._internal();
-
-  final AudioPlayer _audioPlayer = AudioPlayer();
-
-  Future<void> playPenSound() async {
-    await _audioPlayer.play(AssetSource('sounds/pen_writing.mp3'));
+  static Future<void> initialize() async {
+    _backgroundMusicPlayer = AudioPlayer();
+    _effectPlayer = AudioPlayer();
   }
 
-  void dispose() {
-    _audioPlayer.dispose();
+  static Future<void> playBackgroundMusic(String assetPath) async {
+    await _backgroundMusicPlayer?.stop();
+    await _backgroundMusicPlayer?.setReleaseMode(ReleaseMode.loop);
+    await _backgroundMusicPlayer?.setSourceAsset(assetPath);
+    await _backgroundMusicPlayer?.resume();
+  }
+
+  static Future<void> playSoundEffect(String assetPath) async {
+    await _effectPlayer?.setSourceAsset(assetPath);
+    await _effectPlayer?.resume();
+  }
+
+  static Future<void> stopBackgroundMusic() async {
+    await _backgroundMusicPlayer?.stop();
+  }
+
+  static Future<void> dispose() async {
+    await _backgroundMusicPlayer?.dispose();
+    await _effectPlayer?.dispose();
+    _backgroundMusicPlayer = null;
+    _effectPlayer = null;
   }
 }

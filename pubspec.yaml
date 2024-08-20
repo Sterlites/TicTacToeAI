@@ -35,6 +35,8 @@ dependencies:
   provider: ^6.1.1
   animated_text_kit: ^4.2.2
   audioplayers: ^6.0.0
+  flutter_ringtone_player: ^3.2.0
+
 
 dev_dependencies:
   # The "flutter_lints" package below contains a set of recommended lints to

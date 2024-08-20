@@ -1,36 +1,28 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import '../utils/constants.dart';
 
 class GameViewModel extends ChangeNotifier {
   bool oTurn = true;
-
   List<String> bordState = ['', '', '', '', '', '', '', '', ''];
-
   List<int> winIndexes = [];
-
   int count = 0;
-
   int oScore = 0;
-
   int xScore = 0;
-
   String resultDeclaration = '';
-
   bool isOn = true;
-
   final bool isSinglePlayer;
+  bool showConfetti = false;
 
   GameViewModel({required this.isSinglePlayer});
+
   void tapped(int index) {
     if (isOn && bordState[index].isEmpty) {
       if (count % 2 == 0) {
         bordState[index] = 'X';
         count++;
         checkWinner();
-        // notifyListeners(); // Add this line to trigger a rebuild
-        // Call makeComputerMove if it's a single-player game and there are available moves
         if (isSinglePlayer && count < 9) {
           makeComputerMove();
         }
@@ -39,22 +31,18 @@ class GameViewModel extends ChangeNotifier {
         count++;
         checkWinner();
       }
-        notifyListeners(); // Add this line to trigger a rebuild
+      notifyListeners();
     }
   }
 
   void makeComputerMove() {
-    // Delay the computer move for a more natural
     Future.delayed(const Duration(milliseconds: 500), () {
-      // Computer's turn (O's turn)
       List<int> availableMoves = [];
       for (int i = 0; i < 9; i++) {
         if (bordState[i].isEmpty) {
           availableMoves.add(i);
         }
       }
-
-      // Check for a winning move
       for (int move in availableMoves) {
         List<String> tempBoard = List.from(bordState);
         tempBoard[move] = 'O';
@@ -63,8 +51,6 @@ class GameViewModel extends ChangeNotifier {
           return;
         }
       }
-
-      // Check for a blocking move
       for (int move in availableMoves) {
         List<String> tempBoard = List.from(bordState);
         tempBoard[move] = 'X';
@@ -73,8 +59,6 @@ class GameViewModel extends ChangeNotifier {
           return;
         }
       }
-
-      // Make a random move if no winning or blocking move is found
       if (availableMoves.isNotEmpty) {
         int randomIndex =
             availableMoves[Random().nextInt(availableMoves.length)];
@@ -84,7 +68,6 @@ class GameViewModel extends ChangeNotifier {
   }
 
   bool checkWin(List<String> board, String player) {
-    // Check for a win on the current board
     for (List<int> line in AppConstants.winLines) {
       if (board[line[0]] == player &&
           board[line[1]] == player &&
@@ -105,7 +88,6 @@ class GameViewModel extends ChangeNotifier {
         return;
       }
     }
-
     if (count == 9) {
       declareWinner('Nobody');
     }
@@ -120,9 +102,20 @@ class GameViewModel extends ChangeNotifier {
         winIndexes.addAll(winningLine);
       }
       updateScore(winner);
+      showConfetti = true;
+      _playWinSound();
     }
     isOn = false;
     notifyListeners();
+    // Hide confetti after 3 seconds
+    Future.delayed(Duration(seconds: 3), () {
+      showConfetti = false;
+      notifyListeners();
+    });
+  }
+
+  void _playWinSound() {
+    FlutterRingtonePlayer.playNotification();
   }
 
   void updateScore(String winner) {
@@ -133,7 +126,6 @@ class GameViewModel extends ChangeNotifier {
     }
   }
 
-//
   void clearBoard() {
     for (int i = 0; i < 9; i++) {
       bordState[i] = '';
